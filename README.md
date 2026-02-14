@@ -20,9 +20,49 @@ See [SPEC.md](./SPEC.md) for the full specification. Key points:
 
 ## Runtime
 
-- **Language:** GForth
-- **Dependencies:** Standard ANS Forth only
-- **Run:** `gforth kb.fs -e "main bye"` (exact invocation TBD)
+- **Language:** GForth 0.7.3
+- **Dependencies:** Standard ANS Forth only (no external libraries)
+- **Run:** `./kb <command>` or `gforth kb.fs -e "main bye" -- <command>`
+
+## Usage
+
+```bash
+# Add items
+./kb add task "Implement feature"
+./kb add bug "Fix login issue"
+./kb add spike "Research options"
+
+# Move through workflow
+./kb move KAN-001 doing
+./kb move KAN-001 review
+./kb move KAN-001 done
+
+# View items
+./kb ls                    # List all items
+./kb ls --lane=backlog     # Filter by lane
+./kb show KAN-001          # Show item details
+./kb board                 # Visual board view
+./kb blocked               # Show blocked items
+```
+
+## Data Format
+
+Human-readable text file (`kb.dat`):
+
+```
+# Kanban data file
+board: default
+lanes: backlog doing review done
+
+item[ KAN-001
+  type: task
+  title: Implement feature
+  status: doing
+  tags: backend urgent
+  deps: KAN-002
+  created: 2025-02-14
+]item
+```
 
 ## Why Forth
 
@@ -31,9 +71,15 @@ See [SPEC.md](./SPEC.md) for the full specification. Key points:
 - Tiny footprint, radical transparency — the whole system fits in your head (or context window)
 - Stack-based computation may suit certain data transformation patterns
 
+## Implementation Notes
+
+- **988 lines** of GForth code
+- **100 word definitions** (functions)
+- Key architectural decision: Using variables instead of return stack for state in loops (Forth's `?do...loop` uses the return stack, conflicting with `r@`)
+
 ## Status
 
-- [ ] Core: parser, serializer, internal model
-- [ ] CLI: add, move, ls, board, show
-- [ ] Extension: blocked status + kb blocked command
-- [ ] Evaluation notes captured
+- [x] Core: parser, serializer, internal model
+- [x] CLI: add, move, ls, board, show
+- [x] Extension: blocked status + kb blocked command
+- [x] Evaluation notes captured
